@@ -1,10 +1,23 @@
-const createPdf = async function(html){
-  const puppeteer = require('puppeteer');
-  const browser = await puppeteer.launch({ args: ['--no-sandbox'] });
+const puppeteer = require('puppeteer');
+
+// Cache browser instance to speed up PDF generation.
+let browserCache = null;
+
+const newPage = async function(){
+  if(browserCache == null){
+    browserCache = await puppeteer.launch({ args: ['--no-sandbox'] });
+  }
+
+  const browser = browserCache;
   const page = await browser.newPage();
+  return page;
+};
+
+const createPdf = async function(html){
+  const page = await newPage();
   await page.setContent(html);
   const pdf = await page.pdf();
-  await browser.close();
+  await page.close();
   return pdf;
 };
 
@@ -32,6 +45,9 @@ const createPdf = async function(html){
 
     createPdf(html)
       .then(pdf => res.status(200).contentType('application/pdf').send(pdf))
-      .catch(() => res.status(500).send("Unknown server error."));
+      .catch(() => {
+        // TODO Should we close browser and recreate it in next request?
+        res.status(500).send("Unknown server error.");
+      });
   };
   
