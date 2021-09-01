@@ -13,10 +13,14 @@ const newPage = async function(){
   return page;
 };
 
-const createPdf = async function(html){
+const createPdf = async function(html, pdfOptions){
   const page = await newPage();
-  await page.setContent(html);
-  const pdf = await page.pdf();
+  // Wait until page content is fully loaded.
+  // https://pptr.dev/#?product=Puppeteer&version=v10.0.0&show=api-pagesetcontenthtml-options
+  await page.setContent(html, {
+    waitUntil: ["load"],
+  });
+  const pdf = await page.pdf(pdfOptions);
   await page.close();
   return pdf;
 };
@@ -38,12 +42,13 @@ const createPdf = async function(html){
     }
 
     const html = req.body.html;
+    const pdfOptions = req.body.pdfOptions || {};
     if(!html){
       res.status(400).send("Html content was not specified.");
       return;
     }
 
-    createPdf(html)
+    createPdf(html, pdfOptions)
       .then(pdf => res.status(200).contentType('application/pdf').send(pdf))
       .catch(() => {
         // TODO Should we close browser and recreate it in next request?
