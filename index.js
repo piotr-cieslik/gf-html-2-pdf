@@ -15,11 +15,17 @@ const newPage = async function(){
 
 const createPdf = async function(html, pdfOptions){
   const page = await newPage();
+
+  // Add it to make landscape mode working.
+  // https://github.com/puppeteer/puppeteer/issues/3834
+  await page.emulateMediaType('screen');
+
   // Wait until page content is fully loaded.
   // https://pptr.dev/#?product=Puppeteer&version=v10.0.0&show=api-pagesetcontenthtml-options
   await page.setContent(html, {
     waitUntil: ["load"],
   });
+
   const pdf = await page.pdf(pdfOptions);
   await page.close();
   return pdf;
@@ -42,6 +48,8 @@ const createPdf = async function(html, pdfOptions){
     }
 
     const html = req.body.html;
+    // All options are described here:
+    // https://pptr.dev/#?product=Puppeteer&version=v10.0.0&show=api-pagepdfoptions
     const pdfOptions = req.body.pdfOptions || {};
     if(!html){
       res.status(400).send("Html content was not specified.");
