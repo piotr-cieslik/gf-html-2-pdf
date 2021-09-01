@@ -1,0 +1,14 @@
+{
+  "name": "html2pdf",
+  "version": "1.0.0",
+  "description": "Convert HTML to PDF using Puppeteer",
+  "main": "index.js",
+  "scripts": {
+    "start": "npx functions-framework --target=run"
+  },
+  "author": "Piotr Cieślik",
+  "license": "MIT",
+  "devDependencies": {
+    "@google-cloud/functions-framework": "^1.9.0"
+  }
+}
